@@ -58,7 +58,34 @@ Frontend UI akan berjalan di: `http://localhost:3000`
 
 ---
 
-## 🧪 Menguji Phase 1 (Scaffold, Database & Auth)
+## 📚 Mengisi & Mengelola Korpus Hukum (Phase 3 / BP1)
+
+### 1. Menjalankan Seed Script Korpus Ketenagakerjaan
+Untuk menginisialisasi database SQLite dan ChromaDB dengan naskah awal hukum ketenagakerjaan:
+
+```bash
+cd backend
+.venv\Scripts\python.exe seed/seed.py
+```
+
+Naskah seed tersimpan di [`backend/seed/labor_law_seed.json`](file:///c:/z/Technoprenuer/legalChatbot/backend/seed/labor_law_seed.json) dan ditandai dengan label `[CONTOH - VERIFIKASI DENGAN SUMBER RESMI]`. Seed ini memuat:
+- **UU 13/2003:** Pasal 56, Pasal 59 (status `diubah`), Pasal 88.
+- **UU 6/2023 (UU Cipta Kerja):** Mengubah Pasal 59 UU 13/2003 (status `berlaku`, rantai amandemen BP3).
+- **PP 35/2021:** Pasal 8 (jangka waktu PKWT maks 5 tahun), Pasal 15 (kompensasi PKWT).
+- **Permen 999/2024 (Simulasi):** Membatasi PKWT maks 1 tahun (konflik hierarki sengaja untuk demo BP4).
+
+### 2. Mengunggah & Parsing Regulasi Baru Melalui UI Admin
+1. Buka `http://localhost:3000/login` dan masuk sebagai **Admin Korpus** (atau daftar baru dengan kode `ADMIN2025`).
+2. Masuk ke menu **Kelola Korpus** (`/admin/korpus`).
+3. Klik **Unggah Peraturan Baru**, isi metadata (Jenis, Nomor, Tahun, Judul, Status, URL Sumber).
+4. Unggah berkas **PDF/TXT** atau tempel naskah teks peraturan.
+5. Klik **Pratinjau Struktur (Parser)**: Sistem membagi naskah per Bab/Pasal/Ayat secara otomatis.
+6. Periksa daftar pasal, lalu klik **Konfirmasi & Indeks ke ChromaDB**.
+7. Regulasi langsung tersimpan di SQLite dan vektornya tertanam di ChromaDB (`./chroma_db`).
+
+---
+
+## 🧪 Menguji Phase 1 & Phase 2
 
 Jalankan test suite otomatis Phase 1 dari folder `backend`:
 

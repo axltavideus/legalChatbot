@@ -71,6 +71,33 @@ export interface ChatResponse {
 }
 
 // --- Corpus ---
+export type RegulationType = 'UUD' | 'UU' | 'PP' | 'Perpres' | 'Permen' | 'Perda';
+export type RegulationStatus = 'berlaku' | 'diubah' | 'dicabut';
+
+export interface ParsedChunkIn {
+  bab?: string;
+  pasal: string;
+  ayat?: string;
+  text: string;
+  status?: string;
+  amended_by_id?: number;
+}
+
+export interface PreviewResponse {
+  total_chunks: number;
+  chunks: ParsedChunkIn[];
+}
+
+export interface IngestRegulationPayload {
+  reg_type: RegulationType;
+  number: string;
+  year: number;
+  title: string;
+  status: RegulationStatus;
+  source_url?: string;
+  chunks: ParsedChunkIn[];
+}
+
 export interface Regulation {
   id: number;
   reg_type: string;
@@ -78,7 +105,18 @@ export interface Regulation {
   year: number;
   title: string;
   status: string;
+  source_url?: string;
+  chunks_count: number;
   created_at: string;
+  chunks?: {
+    id: number;
+    bab?: string;
+    pasal: string;
+    ayat?: string;
+    text: string;
+    status: string;
+    amended_by_id?: number;
+  }[];
 }
 
 // --- Saved ---

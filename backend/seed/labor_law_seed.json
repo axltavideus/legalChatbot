@@ -1,0 +1,101 @@
+{
+  "_comment": "SEED DATA KORPUS HUKUM LEXINDO — SEMUA TEKS BERIKUT ADALAH PLACEHOLDER DENGAN LABEL RESMI SESUAI KETENTUAN. GANTI DENGAN TEKS RESMI DARI PERATURAN.GO.ID / JDIH.",
+  "regulations": [
+    {
+      "key": "uu-13-2003",
+      "reg_type": "UU",
+      "number": "13",
+      "year": 2003,
+      "title": "Undang-Undang Republik Indonesia Nomor 13 Tahun 2003 tentang Ketenagakerjaan",
+      "status": "berlaku",
+      "source_url": "https://peraturan.go.id/id/uu-no-13-tahun-2003",
+      "pasals": [
+        {
+          "bab": "BAB IX HUBUNGAN KERJA",
+          "pasal": "56",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] (1) Perjanjian kerja dibuat untuk waktu tertentu atau untuk waktu tidak tertentu. (2) Perjanjian kerja untuk waktu tertentu sebagaimana dimaksud dalam ayat (1) didasarkan atas: a. jangka waktu; atau b. selesainya suatu pekerjaan tertentu."
+        },
+        {
+          "bab": "BAB IX HUBUNGAN KERJA",
+          "pasal": "59",
+          "ayat": "1",
+          "status": "diubah",
+          "amended_by_key": "uu-ciptaker-pasal-59",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] [PASAL INI TELAH DIUBAH OLEH UU CIPTA KERJA] (1) Perjanjian kerja untuk waktu tertentu hanya dapat dibuat untuk pekerjaan tertentu yang menurut jenis dan sifat atau kegiatan pekerjaannya akan selesai dalam waktu tertentu, yaitu: a. pekerjaan yang sekali selesai atau yang sementara sifatnya; b. pekerjaan yang diperkirakan penyelesaiannya dalam waktu yang tidak terlalu lama dan paling lama 3 (tiga) tahun; c. pekerjaan yang bersifat musiman; atau d. pekerjaan yang berhubungan dengan produk baru, kegiatan baru, atau produk tambahan yang masih dalam percobaan atau penjajakan. (4) Perjanjian kerja waktu tertentu yang didasarkan atas jangka waktu tertentu dapat diadakan untuk paling lama 2 (dua) tahun dan hanya boleh diperpanjang 1 (satu) kali untuk jangka waktu paling lama 1 (satu) tahun."
+        },
+        {
+          "bab": "BAB X PENGUPAHAN",
+          "pasal": "88",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] (1) Setiap pekerja/buruh berhak memperoleh penghasilan yang memenuhi penghidupan yang layak bagi kemanusiaan. (2) Untuk mewujudkan penghasilan yang memenuhi penghidupan yang layak bagi kemanusiaan sebagaimana dimaksud dalam ayat (1), pemerintah menetapkan kebijakan pengupahan yang melindungi pekerja/buruh."
+        }
+      ]
+    },
+    {
+      "key": "uu-6-2023",
+      "reg_type": "UU",
+      "number": "6",
+      "year": 2023,
+      "title": "Undang-Undang Republik Indonesia Nomor 6 Tahun 2023 tentang Penetapan Perppu Cipta Kerja Menjadi Undang-Undang",
+      "status": "berlaku",
+      "source_url": "https://peraturan.go.id/id/uu-no-6-tahun-2023",
+      "pasals": [
+        {
+          "key": "uu-ciptaker-pasal-59",
+          "bab": "BAB IV KETENAGAKERJAAN",
+          "pasal": "59",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] [MENGUBAH PASAL 59 UU 13/2003] (1) Perjanjian kerja untuk waktu tertentu hanya dapat dibuat untuk pekerjaan tertentu yang menurut jenis dan sifat atau kegiatan pekerjaannya akan selesai dalam waktu tertentu, yaitu: a. pekerjaan yang sekali selesai atau yang sementara sifatnya; b. pekerjaan yang diperkirakan penyelesaiannya dalam waktu yang tidak terlalu lama; c. pekerjaan yang bersifat musiman; d. pekerjaan yang berhubungan dengan produk baru, kegiatan baru, atau produk tambahan yang masih dalam percobaan atau penjajakan; atau e. pekerjaan yang jenis dan sifat atau kegiatannya bersifat tidak tetap. (3) Jangka waktu atau selesainya suatu pekerjaan tertentu sebagaimana dimaksud pada ayat (1) huruf a, huruf b, dan huruf e diatur dalam Peraturan Pemerintah."
+        }
+      ]
+    },
+    {
+      "key": "pp-35-2021",
+      "reg_type": "PP",
+      "number": "35",
+      "year": 2021,
+      "title": "Peraturan Pemerintah Republik Indonesia Nomor 35 Tahun 2021 tentang Perjanjian Kerja Waktu Tertentu, Alih Daya, Waktu Kerja dan Waktu Istirahat, dan Pemutusan Hubungan Kerja",
+      "status": "berlaku",
+      "source_url": "https://peraturan.go.id/id/pp-no-35-tahun-2021",
+      "pasals": [
+        {
+          "bab": "BAB II PERJANJIAN KERJA WAKTU TERTENTU",
+          "pasal": "8",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] (1) PKWT berdasarkan jangka waktu sebagaimana dimaksud dalam Pasal 5 ayat (1) dapat dibuat untuk paling lama 5 (lima) tahun. (2) Dalam hal jangka waktu PKWT sebagaimana dimaksud pada ayat (1) akan berakhir dan pekerjaan yang dilaksanakan belum selesai maka dapat dilakukan perpanjangan PKWT dengan jangka waktu sesuai kesepakatan antara Pengusaha dengan Pekerja/Buruh, dengan ketentuan jangka waktu keseluruhan PKWT beserta perpanjangannya tidak lebih dari 5 (lima) tahun."
+        },
+        {
+          "bab": "BAB II PERJANJIAN KERJA WAKTU TERTENTU",
+          "pasal": "15",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] (1) Pengusaha wajib memberikan uang kompensasi kepada Pekerja/Buruh yang hubungan kerjanya berdasarkan PKWT. (2) Pemberian uang kompensasi dilaksanakan pada saat berakhirnya PKWT. (3) Uang kompensasi sebagaimana dimaksud pada ayat (1) diberikan kepada Pekerja/Buruh yang telah mempunyai masa kerja paling sedikit 1 (satu) bulan secara terus menerus."
+        }
+      ]
+    },
+    {
+      "key": "permen-demo-conflict",
+      "reg_type": "Permen",
+      "number": "999",
+      "year": 2024,
+      "title": "Peraturan Menteri Ketenagakerjaan Nomor 999 Tahun 2024 tentang Pembatasan Khusus Kontrak Kerja [SIMULASI KONFLIK HIERARKI HUKUM]",
+      "status": "berlaku",
+      "source_url": "https://jdih.kemnaker.go.id",
+      "pasals": [
+        {
+          "bab": "BAB II PEMBATASAN KONTRAK",
+          "pasal": "4",
+          "ayat": "1",
+          "status": "berlaku",
+          "text": "[CONTOH - VERIFIKASI DENGAN SUMBER RESMI] [SIMULASI KONFLIK HIERARKI BP4] Pasal 4: (1) Jangka waktu Perjanjian Kerja Waktu Tertentu (PKWT) di seluruh sektor usaha dibatasi secara mutlak paling lama hanya 1 (satu) tahun tanpa boleh diperpanjang atau diperbaharui. (Ketentuan ini secara sengaja dibuat bertentangan dengan UU 13/2003 Pasal 59 jo. PP 35/2021 Pasal 8 yang membolehkan PKWT hingga paling lama 5 tahun, untuk mendemonstrasikan peringatan konflik hierarki hukum Lex Superior Derogat Legi Inferiori)."
+        }
+      ]
+    }
+  ]
+}
+

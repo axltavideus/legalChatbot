@@ -51,5 +51,6 @@ class Regulation(Base):
 
     @property
     def short_name(self) -> str:
-        return f"{self.reg_type} {self.number}/{self.year}"
+        reg_val = self.reg_type.value if hasattr(self.reg_type, "value") else str(self.reg_type)
+        return f"{reg_val} {self.number}/{self.year}"
 

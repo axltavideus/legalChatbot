@@ -6,6 +6,7 @@ import type {
   TokenResponse, RegisterPayload, LoginPayload,
   UpdateProfilePayload, ChangePasswordPayload, DeleteAccountPayload,
   User, ChatResponse, Regulation, Folder, FeedbackPayload,
+  PreviewResponse, IngestRegulationPayload,
 } from './types';
 
 const BASE = '/api';
@@ -81,10 +82,40 @@ export const chatApi = {
 };
 
 // ---------------------------------------------------------------------------
-// Corpus (Phase 3)
+// Corpus (Phase 3 / BP1)
 // ---------------------------------------------------------------------------
 export const corpusApi = {
   list: () => request<Regulation[]>('/corpus'),
+
+  get: (id: number) => request<Regulation>(`/corpus/${id}`),
+
+  preview: async (formData: FormData): Promise<PreviewResponse> => {
+    const res = await fetch(`${BASE}/corpus/preview`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData, // fetch sets multipart/form-data boundary automatically
+    });
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try {
+        const body = await res.json();
+        detail = body?.detail ?? detail;
+      } catch {}
+      throw new Error(detail);
+    }
+    return res.json();
+  },
+
+  confirm: (payload: IngestRegulationPayload) =>
+    request<Regulation>('/corpus/confirm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  delete: (id: number) =>
+    request<{ message: string }>(`/corpus/${id}`, {
+      method: 'DELETE',
+    }),
 };
 
 // ---------------------------------------------------------------------------
