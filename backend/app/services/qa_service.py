@@ -1,6 +1,7 @@
 """RAG Q&A pipeline service — retrieves grounded Pasal chunks, enforces similarity thresholds,
 
 and persists conversation history with structured legal citations.
+Integrates BP3 (amendment chain) and BP4 (hierarchy conflict detection).
 """
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
@@ -12,6 +13,8 @@ from app.models.message import Message, MessageRole
 from app.models.regulation import HIERARCHY_LEVEL, RegulationType
 from app.services.vector_store import query_pasals
 from app.services.llm_service import generate_legal_answer
+from app.services.validity_service import enrich_citations_with_amendments
+from app.services.conflict_service import detect_conflicts
 
 DISCLAIMER_FOOTNOTE = "\n\n---\n*⚖️ Alat bantu riset, bukan nasihat hukum. Verifikasi naskah dengan sumber resmi (peraturan.go.id / JDIH).*"
 
@@ -80,7 +83,18 @@ def execute_qa_pipeline(
         # 4. Invoke LLM generation
         llm_output = generate_legal_answer(cleaned_question, sorted_chunks)
 
-        # 5. Append persistent legal disclaimer to answer text
+        # 5. BP3 — Enrich citations with amendment timelines (uses DB for chunk lookup)
+        if llm_output.get("citations"):
+            llm_output["citations"] = enrich_citations_with_amendments(db, llm_output["citations"])
+
+        # 6. BP4 — Detect hierarchy conflicts among retrieved chunks
+        detected_conflicts = detect_conflicts(sorted_chunks)
+        if detected_conflicts:
+            # Merge with any conflicts the LLM may have identified
+            existing_conflicts = llm_output.get("conflicts", [])
+            llm_output["conflicts"] = existing_conflicts + detected_conflicts
+
+        # 7. Append persistent legal disclaimer to answer text
         if DISCLAIMER_FOOTNOTE not in llm_output["answer"]:
             llm_output["answer"] = llm_output["answer"] + DISCLAIMER_FOOTNOTE
 

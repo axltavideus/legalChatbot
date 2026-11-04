@@ -1,11 +1,14 @@
 /**
  * MessageBubble — renders a single turn (user question or structured assistant legal response).
+ * Phase 5: Integrates AmendmentTimeline (BP3) and ConflictBanner (BP4).
  */
 'use client';
 
-import { Scale, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { CitationChip } from './CitationChip';
 import { FeedbackButtons } from './FeedbackButtons';
+import AmendmentTimeline from './AmendmentTimeline';
+import ConflictBanner from './ConflictBanner';
 import type { Citation, Conflict } from '@/lib/types';
 
 export interface MessageProps {
@@ -43,6 +46,10 @@ export function MessageBubble({
   // Assistant Legal Turn
   const isRefusal = status_flags?.includes('tidak_ditemukan');
 
+  // Determine whether any citation has been amended (for status badge)
+  const hasAmended = citations?.some((c) => c.status === 'diubah' || c.status === 'dicabut');
+  const hasConflicts = conflicts && conflicts.length > 0;
+
   return (
     <div className="flex justify-start animate-fade-in">
       <div className="w-full max-w-3xl rounded-2xl rounded-tl-xs border border-navy-100 bg-white p-4 md:p-5 shadow-xs space-y-4">
@@ -57,7 +64,7 @@ export function MessageBubble({
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
             {isRefusal ? (
               <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800">
                 Di Luar Korpus
@@ -68,22 +75,22 @@ export function MessageBubble({
                 Terverifikasi Korpus
               </span>
             )}
+            {hasAmended && !isRefusal && (
+              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800">
+                Ada Perubahan
+              </span>
+            )}
+            {hasConflicts && (
+              <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-semibold text-red-800">
+                ⚠️ Konflik Terdeteksi
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Conflict Warning Banner (BP4) */}
-        {conflicts && conflicts.length > 0 && (
-          <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 space-y-1">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
-              <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
-              <span>Peringatan Konflik Hierarki Hukum (Lex Superior Derogat Legi Inferiori)</span>
-            </div>
-            {conflicts.map((conf, idx) => (
-              <p key={idx} className="text-xs text-amber-800 leading-relaxed pl-6">
-                {conf.description} (Ketentuan <strong>{conf.higher_reg}</strong> mengesampingkan <strong>{conf.lower_reg}</strong>).
-              </p>
-            ))}
-          </div>
+        {/* BP4: Hierarchy Conflict Warning Banner */}
+        {hasConflicts && (
+          <ConflictBanner conflicts={conflicts as any[]} />
         )}
 
         {/* Answer Content */}
@@ -91,12 +98,13 @@ export function MessageBubble({
           {content}
         </div>
 
-        {/* Grounded Citation Chips (BP2) */}
+        {/* BP2 + BP3: Grounded Citation Chips with Amendment Timelines */}
         {citations && citations.length > 0 && (
-          <div className="rounded-xl bg-navy-50/50 p-3 border border-navy-100/70 space-y-2">
+          <div className="rounded-xl bg-navy-50/50 p-3 border border-navy-100/70 space-y-3">
             <div className="text-[11px] font-bold text-navy-800 uppercase tracking-wider">
               Dasar Hukum Rujukan:
             </div>
+            {/* Citation chips row */}
             <div className="flex flex-wrap gap-2">
               {citations.map((c, idx) => (
                 <CitationChip
@@ -106,10 +114,30 @@ export function MessageBubble({
                 />
               ))}
             </div>
+            {/* BP3: Amendment timelines — one per citation that has been amended */}
+            {citations.map((c, idx) => {
+              if (!c.amendment_timeline) return null;
+              return (
+                <AmendmentTimeline
+                  key={`timeline-${c.pasal_chunk_id}-${idx}`}
+                  timeline={c.amendment_timeline}
+                />
+              );
+            })}
+            {/* Show amendment upgrade note if present */}
+            {citations.some((c) => c.note) && (
+              <div className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                {citations
+                  .filter((c) => c.note)
+                  .map((c, i) => (
+                    <p key={i}>📌 {c.note}</p>
+                  ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Footer Actions: Feedback & Refusal info */}
+        {/* Footer Actions */}
         <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
           <FeedbackButtons messageId={messageId} />
         </div>
@@ -117,4 +145,3 @@ export function MessageBubble({
     </div>
   );
 }
-

@@ -48,17 +48,54 @@ export interface DeleteAccountPayload {
 }
 
 // --- Chat ---
+export interface AmendmentTimelineEntry {
+  chunk_id: number;
+  citation_label: string;
+  peraturan: string;
+  reg_type: string;
+  pasal: string;
+  ayat?: string | null;
+  text: string;
+  status: 'berlaku' | 'diubah' | 'dicabut';
+  year: number;
+  is_current: boolean;
+}
+
+export interface AmendmentTimelineData {
+  original_chunk_id: number;
+  current_chunk_id: number;
+  is_amended: boolean;
+  timeline: AmendmentTimelineEntry[];
+}
+
 export interface Citation {
   pasal_chunk_id: number;
   label: string;
+  peraturan?: string;
+  pasal_nomor?: string;
   text: string;
   status: 'berlaku' | 'diubah' | 'dicabut';
+  note?: string;
+  amendment_timeline?: AmendmentTimelineData;
 }
 
 export interface Conflict {
-  description: string;
-  higher_reg: string;
-  lower_reg: string;
+  // Legacy flat fields (from previous MessageBubble)
+  description?: string;
+  // BP4 structured fields
+  topic?: string;
+  higher_reg?: string;
+  higher_chunk_id?: number;
+  higher_citation?: string;
+  higher_text?: string;
+  higher_level?: number;
+  lower_reg?: string;
+  lower_chunk_id?: number;
+  lower_citation?: string;
+  lower_text?: string;
+  lower_level?: number;
+  principle?: string;
+  verdict?: string;
 }
 
 export interface ChatResponse {
