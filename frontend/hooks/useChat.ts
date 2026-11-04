@@ -15,6 +15,7 @@ export interface ChatMessage {
   citations?: Citation[];
   status_flags?: string[];
   conflicts?: Conflict[];
+  message_id?: number;
   isLoading?: boolean;
   error?: string;
 }
@@ -54,6 +55,7 @@ export function useChat() {
         citations: res.citations,
         status_flags: res.status_flags,
         conflicts: res.conflicts,
+        message_id: res.message_id,
       };
       setMessages((prev) =>
         prev.map((m) => (m.id === loadingId ? assistantMsg : m))
