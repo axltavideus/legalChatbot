@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AlertTriangle, ChevronDown, ChevronUp, Scale } from "lucide-react";
+import { renderMarkdown } from "@/lib/renderMarkdown";
 
 // -------------------------------------------------------------------------
 // Types
@@ -126,15 +127,9 @@ function ConflictCard({ conflict, index }: { conflict: ConflictData; index: numb
                 Asas: {conflict.principle}
               </span>
             </div>
-            <p
-              className="text-sm text-gray-800 leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: conflict.verdict.replace(
-                  /\*\*(.+?)\*\*/g,
-                  "<strong>$1</strong>"
-                ),
-              }}
-            />
+            <p className="text-sm text-gray-800 leading-relaxed">
+              {renderMarkdown(conflict.verdict)}
+            </p>
           </div>
         </div>
       )}

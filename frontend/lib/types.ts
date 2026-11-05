@@ -47,6 +47,47 @@ export interface DeleteAccountPayload {
   password: string;
 }
 
+export interface InviteInfo {
+  invite_code: string;
+  referral_count: number;
+  share_url: string;
+}
+
+export interface DashboardMetrics {
+  answers_weekly: {
+    data: { week: string; answers: number; citations: number }[];
+    is_demo_data: boolean;
+  };
+  users_retention: {
+    total_registered: number;
+    weekly_active_users: number;
+    retention_rate: string;
+    is_demo_data: boolean;
+  };
+  negative_feedback: {
+    total_feedbacks: number;
+    negative_rate: string;
+    reasons: { reason: string; count: number; percentage: string }[];
+    is_demo_data: boolean;
+  };
+  corpus_inventory: {
+    regulations_count: number;
+    pasal_chunks_count: number;
+    labor_law_cluster: string;
+  };
+  llm_usage: {
+    total_calls: number;
+    total_tokens: number;
+    estimated_cost_usd: string;
+    is_demo_data: boolean;
+  };
+  plan_interest: {
+    data: { plan: string; count: number; pct: string }[];
+    total_interest: number;
+    is_demo_data: boolean;
+  };
+}
+
 // --- Chat ---
 export interface AmendmentTimelineEntry {
   chunk_id: number;
@@ -107,6 +148,24 @@ export interface ChatResponse {
   conflicts: Conflict[];
 }
 
+export interface MessageOut {
+  id: number;
+  role: string;
+  content: string;
+  citations?: Citation[];
+  status_flags?: string[];
+  conflicts?: Conflict[];
+  created_at: string;
+}
+
+export interface ConversationOut {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages?: MessageOut[];
+}
+
 // --- Corpus ---
 export type RegulationType = 'UUD' | 'UU' | 'PP' | 'Perpres' | 'Permen' | 'Perda';
 export type RegulationStatus = 'berlaku' | 'diubah' | 'dicabut';
@@ -159,13 +218,42 @@ export interface Regulation {
 // --- Saved ---
 export interface Folder {
   id: number;
+  user_id: number;
   name: string;
   created_at: string;
+  items_count?: number;
+}
+
+export interface SavedItem {
+  id: number;
+  user_id: number;
+  message_id: number;
+  folder_id: number | null;
+  folder_name?: string | null;
+  note: string | null;
+  created_at: string;
+  question: string;
+  answer: string;
+  citations: Citation[];
+  status_flags: string[];
+  conflicts: Conflict[];
+}
+
+export interface SaveItemPayload {
+  message_id: number;
+  folder_id?: number | null;
+  note?: string;
+}
+
+export interface UpdateSavedItemPayload {
+  folder_id?: number | null;
+  note?: string;
 }
 
 // --- Feedback ---
 export type FeedbackType = 'thumbs_up' | 'thumbs_down';
 export type FeedbackReason = 'sitasi_salah' | 'jawaban_keliru' | 'peraturan_tidak_berlaku' | 'lainnya';
+export type FeedbackStatus = 'baru' | 'ditinjau' | 'diperbaiki';
 
 export interface FeedbackPayload {
   message_id?: number;
@@ -173,6 +261,21 @@ export interface FeedbackPayload {
   reason?: FeedbackReason;
   comment?: string;
   is_general?: boolean;
+}
+
+export interface FeedbackItem {
+  id: number;
+  user_id: number;
+  user_email?: string | null;
+  user_name?: string | null;
+  message_id?: number | null;
+  message_preview?: string | null;
+  feedback_type: FeedbackType;
+  reason?: FeedbackReason | null;
+  comment?: string | null;
+  status: FeedbackStatus;
+  is_general: boolean;
+  created_at: string;
 }
 
 // --- Generic API error ---

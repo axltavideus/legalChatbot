@@ -4,13 +4,15 @@
  */
 'use client';
 
-import { ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { ShieldCheck, Bookmark } from 'lucide-react';
 import { CitationChip } from './CitationChip';
 import { FeedbackButtons } from './FeedbackButtons';
 import AmendmentTimeline from './AmendmentTimeline';
 import ConflictBanner from './ConflictBanner';
+import { SaveModal } from './SaveModal';
+import { renderMarkdown } from '@/lib/renderMarkdown';
 import type { Citation, Conflict } from '@/lib/types';
-
 export interface MessageProps {
   id: string;
   role: 'user' | 'assistant';
@@ -31,6 +33,7 @@ export function MessageBubble({
   messageId,
   onClickSource,
 }: MessageProps) {
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const isUser = role === 'user';
 
   if (isUser) {
@@ -93,9 +96,9 @@ export function MessageBubble({
           <ConflictBanner conflicts={conflicts as any[]} />
         )}
 
-        {/* Answer Content */}
-        <div className="text-xs md:text-sm text-navy-950 leading-relaxed whitespace-pre-line font-sans">
-          {content}
+        {/* Answer Content — rendered with inline markdown (bold, italic, code) */}
+        <div className="text-xs md:text-sm text-navy-950 leading-relaxed font-sans space-y-1">
+          {renderMarkdown(content)}
         </div>
 
         {/* BP2 + BP3: Grounded Citation Chips with Amendment Timelines */}
@@ -137,10 +140,28 @@ export function MessageBubble({
           </div>
         )}
 
-        {/* Footer Actions */}
+        {/* Footer Actions: Feedback & Save Research */}
         <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
           <FeedbackButtons messageId={messageId} />
+
+          {messageId && !isRefusal && (
+            <button
+              onClick={() => setIsSaveModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-2.5 py-1 text-xs font-medium text-navy-700 hover:border-navy-400 hover:bg-navy-50/70 transition-colors shadow-2xs"
+              title="Simpan ke Folder Riset"
+            >
+              <Bookmark className="h-3.5 w-3.5 text-navy-600" />
+              <span>Simpan Riset</span>
+            </button>
+          )}
         </div>
+
+        {/* Save Research Modal */}
+        <SaveModal
+          isOpen={isSaveModalOpen}
+          messageId={messageId}
+          onClose={() => setIsSaveModalOpen(false)}
+        />
       </div>
     </div>
   );

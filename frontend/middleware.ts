@@ -21,12 +21,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Root redirect
+  // Landing page is public
   if (pathname === '/') {
-    if (token) {
-      return NextResponse.redirect(new URL('/tanya', request.url));
-    }
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.next();
   }
 
   // Protect all other app pages

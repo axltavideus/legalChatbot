@@ -6,7 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { chatApi } from '@/lib/api';
-import type { ChatResponse, Citation, Conflict } from '@/lib/types';
+import type { ChatResponse, Citation, Conflict, MessageOut } from '@/lib/types';
 
 export interface ChatMessage {
   id: string;
@@ -81,6 +81,30 @@ export function useChat() {
     setConversationId(undefined);
   }, []);
 
-  return { messages, conversationId, isLoading, sendMessage, clearChat };
+  const loadConversation = useCallback(async (id: number) => {
+    setIsLoading(true);
+    try {
+      const conv = await chatApi.getConversation(id);
+      setConversationId(conv.id);
+      if (conv.messages) {
+        const loaded: ChatMessage[] = conv.messages.map((m: MessageOut) => ({
+          id: `msg-${m.id}`,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          citations: m.citations ?? undefined,
+          status_flags: m.status_flags ?? undefined,
+          conflicts: m.conflicts ?? undefined,
+          message_id: m.id,
+        }));
+        setMessages(loaded);
+      }
+    } catch {
+      // Ignore if not found
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { messages, conversationId, isLoading, sendMessage, clearChat, loadConversation };
 }
 

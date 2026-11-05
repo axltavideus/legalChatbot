@@ -17,17 +17,52 @@ class ChatRequest(BaseModel):
         return cleaned
 
 
+class AmendmentTimelineEntryOut(BaseModel):
+    chunk_id: int
+    citation_label: str
+    peraturan: str
+    reg_type: str
+    pasal: str
+    ayat: Optional[str] = None
+    text: str
+    status: str
+    year: int
+    is_current: bool
+
+
+class AmendmentTimelineDataOut(BaseModel):
+    original_chunk_id: int
+    current_chunk_id: int
+    is_amended: bool
+    timeline: List[AmendmentTimelineEntryOut] = []
+
+
 class CitationOut(BaseModel):
     pasal_chunk_id: int
     label: str          # e.g. "UU 13/2003 Pasal 59 ayat (1)"
     text: str
     status: str         # berlaku / diubah / dicabut
+    peraturan: Optional[str] = None
+    pasal_nomor: Optional[str] = None
+    note: Optional[str] = None
+    amendment_timeline: Optional[AmendmentTimelineDataOut] = None
 
 
 class ConflictOut(BaseModel):
-    description: str
-    higher_reg: str
-    lower_reg: str
+    topic: Optional[str] = None
+    description: Optional[str] = None
+    higher_reg: Optional[str] = None
+    higher_chunk_id: Optional[int] = None
+    higher_citation: Optional[str] = None
+    higher_text: Optional[str] = None
+    higher_level: Optional[int] = None
+    lower_reg: Optional[str] = None
+    lower_chunk_id: Optional[int] = None
+    lower_citation: Optional[str] = None
+    lower_text: Optional[str] = None
+    lower_level: Optional[int] = None
+    principle: Optional[str] = "Lex Superior Derogat Legi Inferiori"
+    verdict: Optional[str] = None
 
 
 class ChatResponse(BaseModel):

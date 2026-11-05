@@ -5,8 +5,9 @@
 import type {
   TokenResponse, RegisterPayload, LoginPayload,
   UpdateProfilePayload, ChangePasswordPayload, DeleteAccountPayload,
-  User, ChatResponse, Regulation, Folder, FeedbackPayload,
-  PreviewResponse, IngestRegulationPayload,
+  User, ChatResponse, ConversationOut, Regulation, Folder, FeedbackPayload,
+  FeedbackItem, FeedbackStatus, SavedItem, SaveItemPayload, UpdateSavedItemPayload,
+  PreviewResponse, IngestRegulationPayload, InviteInfo, DashboardMetrics,
 } from './types';
 
 const BASE = '/api';
@@ -68,16 +69,25 @@ export const authApi = {
 
   deleteAccount: (payload: DeleteAccountPayload) =>
     request<{ message: string }>('/auth/me', { method: 'DELETE', body: JSON.stringify(payload) }),
+
+  getInvite: () =>
+    request<InviteInfo>('/auth/invite'),
 };
 
 // ---------------------------------------------------------------------------
-// Chat (Phase 4)
+// Chat (Phase 4 / BP2)
 // ---------------------------------------------------------------------------
 export const chatApi = {
   ask: (question: string, conversation_id?: number) =>
     request<ChatResponse>('/chat', {
       method: 'POST',
       body: JSON.stringify({ question, conversation_id }),
+    }),
+  listConversations: () => request<ConversationOut[]>('/chat/conversations'),
+  getConversation: (id: number) => request<ConversationOut>(`/chat/conversations/${id}`),
+  deleteConversation: (id: number) =>
+    request<{ message: string }>(`/chat/conversations/${id}`, {
+      method: 'DELETE',
     }),
 };
 
@@ -119,17 +129,91 @@ export const corpusApi = {
 };
 
 // ---------------------------------------------------------------------------
-// Saved (Phase 6)
+// Saved & Folders (BP5)
 // ---------------------------------------------------------------------------
 export const savedApi = {
-  list: () => request<Folder[]>('/saved'),
+  // Folders
+  listFolders: () => request<Folder[]>('/saved/folders'),
+  createFolder: (name: string) =>
+    request<Folder>('/saved/folders', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    }),
+  updateFolder: (id: number, name: string) =>
+    request<Folder>(`/saved/folders/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    }),
+  deleteFolder: (id: number) =>
+    request<{ message: string }>(`/saved/folders/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Saved Items
+  listItems: (folderId?: number) => {
+    const url = folderId !== undefined ? `/saved/items?folder_id=${folderId}` : '/saved/items';
+    return request<SavedItem[]>(url);
+  },
+  saveItem: (payload: SaveItemPayload) =>
+    request<SavedItem>('/saved/items', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateItem: (id: number, payload: UpdateSavedItemPayload) =>
+    request<SavedItem>(`/saved/items/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  deleteItem: (id: number) =>
+    request<{ message: string }>(`/saved/items/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Export PDF (downloads binary Blob)
+  exportFolderPdfUrl: (folderId: number) => `${BASE}/saved/folders/${folderId}/export`,
+  exportItemPdfUrl: (itemId: number) => `${BASE}/saved/items/${itemId}/export`,
 };
 
 // ---------------------------------------------------------------------------
-// Feedback (Phase 6)
+// Feedback (Answer Feedback & Admin Review)
 // ---------------------------------------------------------------------------
 export const feedbackApi = {
   submit: (payload: FeedbackPayload) =>
-    request<{ message: string }>('/feedback', { method: 'POST', body: JSON.stringify(payload) }),
+    request<{ message: string; id?: number }>('/feedback', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  // Admin endpoints
+  list: (statusFilter?: string) => {
+    const url = statusFilter ? `/feedback?status_filter=${statusFilter}` : '/feedback';
+    return request<FeedbackItem[]>(url);
+  },
+  updateStatus: (id: number, status: FeedbackStatus) =>
+    request<FeedbackItem>(`/feedback/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+};
+
+// ---------------------------------------------------------------------------
+// Plans & Subscription Interest (Lean Canvas Validation)
+// ---------------------------------------------------------------------------
+export const plansApi = {
+  recordInterest: (plan_name: string) =>
+    request<{ message: string; plan_name: string }>('/plans/interest', {
+      method: 'POST',
+      body: JSON.stringify({ plan_name }),
+    }),
+  getMyInterests: () =>
+    request<{ plan_name: string; created_at: string }[]>('/plans/interest'),
+};
+
+// ---------------------------------------------------------------------------
+// Admin Dashboard Metrics
+// ---------------------------------------------------------------------------
+export const adminDashboardApi = {
+  getMetrics: () =>
+    request<DashboardMetrics>('/admin/dashboard/metrics'),
 };
 

@@ -1,8 +1,10 @@
 """Auth router — register, login, logout, me, profile update, change password, delete account."""
+import secrets
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
@@ -11,7 +13,7 @@ from app.models.user import User, UserRole
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, UserResponse, TokenResponse,
     ChangePasswordRequest, UpdateProfileRequest, CompleteOnboardingRequest,
-    DeleteAccountRequest,
+    DeleteAccountRequest, InviteResponse,
 )
 from app.services.auth_service import (
     hash_password, verify_password, create_access_token, get_current_user,
@@ -21,6 +23,15 @@ router = APIRouter()
 
 COOKIE_NAME = "access_token"
 COOKIE_MAX_AGE = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60  # seconds
+
+
+def _generate_unique_invite_code(db: Session) -> str:
+    """Generate a unique personal referral code, e.g. LEX-7F3A2C."""
+    for _ in range(10):
+        code = "LEX-" + secrets.token_hex(3).upper()
+        if not db.query(User).filter(User.invite_code == code).first():
+            return code
+    return "LEX-" + secrets.token_hex(4).upper()
 
 
 def _set_auth_cookie(response: Response, token: str) -> None:
@@ -48,12 +59,16 @@ def register(body: RegisterRequest, response: Response, db: Session = Depends(ge
                 detail="Kode undangan Admin tidak valid",
             )
 
+    invite_code = _generate_unique_invite_code(db)
+
     user = User(
         name=body.name,
         email=body.email,
         hashed_password=hash_password(body.password),
         role=body.role,
         institution=body.institution,
+        invite_code=invite_code,
+        referred_by=body.referred_by.strip() if body.referred_by else None,
     )
     db.add(user)
     try:
@@ -162,6 +177,34 @@ def complete_onboarding(
     current_user.onboarding_completed = True
     db.commit()
     return {"message": "Onboarding selesai"}
+
+
+# ---------------------------------------------------------------------------
+# Invite & Referral (Undang Teman)
+# ---------------------------------------------------------------------------
+
+@router.get("/invite", response_model=InviteResponse)
+def get_invite_info(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Retrieve or generate the user's personal invite code and referral count."""
+    if not current_user.invite_code:
+        current_user.invite_code = _generate_unique_invite_code(db)
+        db.commit()
+        db.refresh(current_user)
+
+    count = (
+        db.query(func.count(User.id))
+        .filter(User.referred_by == current_user.invite_code)
+        .scalar()
+        or 0
+    )
+    return InviteResponse(
+        invite_code=current_user.invite_code,
+        referral_count=count,
+        share_url=f"/register?ref={current_user.invite_code}",
+    )
 
 
 # ---------------------------------------------------------------------------

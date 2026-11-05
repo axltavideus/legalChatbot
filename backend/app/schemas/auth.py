@@ -11,6 +11,7 @@ class RegisterRequest(BaseModel):
     role: UserRole = UserRole.pengguna
     institution: Optional[str] = None
     invite_code: Optional[str] = None  # Required if role == admin
+    referred_by: Optional[str] = None  # Personal referral code from inviter friend
 
     @field_validator("password")
     @classmethod
@@ -64,8 +65,17 @@ class UserResponse(BaseModel):
     role: UserRole
     institution: Optional[str]
     onboarding_completed: bool
+    invite_code: Optional[str] = None
+    referred_by: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class InviteResponse(BaseModel):
+    invite_code: str
+    referral_count: int
+    share_url: str
+
 
 
 class TokenResponse(BaseModel):

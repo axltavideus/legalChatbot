@@ -58,10 +58,10 @@ def execute_qa_pipeline(
     # 1. Retrieve top-k chunks from ChromaDB
     retrieved = query_pasals(cleaned_question, top_k=settings.RETRIEVAL_TOP_K)
 
-    # 2. Refusal check: filter chunks that satisfy the similarity threshold
-    valid_chunks = [c for c in retrieved if c.get("similarity", 0.0) >= settings.SIMILARITY_THRESHOLD]
+    # 2. Refusal check: does the highest matching chunk satisfy the similarity threshold?
+    top_similarity = max([c.get("similarity", 0.0) for c in retrieved], default=0.0)
 
-    if not valid_chunks:
+    if top_similarity < settings.SIMILARITY_THRESHOLD:
         # Refusal behavior as required by BP2
         refusal_answer = (
             "Dasar hukum tidak ditemukan dalam korpus.\n\n"
@@ -77,7 +77,9 @@ def execute_qa_pipeline(
             "conflicts": [],
         }
     else:
-        # 3. Prioritize retrieved chunks by validity and hierarchy
+        # 3. Valid question: filter chunks with reasonable topical similarity (>= 0.30)
+        valid_chunks = [c for c in retrieved if c.get("similarity", 0.0) >= 0.30]
+        # Prioritize retrieved chunks by validity and hierarchy
         sorted_chunks = _prioritize_chunks(valid_chunks)
 
         # 4. Invoke LLM generation
@@ -87,8 +89,10 @@ def execute_qa_pipeline(
         if llm_output.get("citations"):
             llm_output["citations"] = enrich_citations_with_amendments(db, llm_output["citations"])
 
-        # 6. BP4 — Detect hierarchy conflicts among retrieved chunks
-        detected_conflicts = detect_conflicts(sorted_chunks)
+        # 6. BP4 — Detect hierarchy conflicts among ALL retrieved chunks (not just valid_chunks)
+        # This ensures lower-similarity chunks like a conflicting Permen still trigger a warning
+        # even when they don't meet the threshold for being used in the answer itself.
+        detected_conflicts = detect_conflicts(retrieved)
         if detected_conflicts:
             # Merge with any conflicts the LLM may have identified
             existing_conflicts = llm_output.get("conflicts", [])
@@ -134,6 +138,24 @@ def execute_qa_pipeline(
     db.commit()
     db.refresh(conv)
     db.refresh(assistant_msg)
+
+    # 7. Log token usage and estimated cost into usage_logs (BP Lean Canvas Dashboard)
+    try:
+        from app.models.usage_log import UsageLog
+        p_tokens = max(60, len(cleaned_question) // 3 + 320)
+        c_tokens = max(30, len(llm_output["answer"]) // 3)
+        cost = round((p_tokens * 0.00000015) + (c_tokens * 0.00000060), 6)
+        usage_record = UsageLog(
+            user_id=current_user.id,
+            endpoint="/api/chat",
+            tokens_prompt=p_tokens,
+            tokens_completion=c_tokens,
+            cost_usd=cost,
+        )
+        db.add(usage_record)
+        db.commit()
+    except Exception:
+        pass
 
     return {
         "conversation_id": conv.id,

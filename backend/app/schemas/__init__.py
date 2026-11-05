@@ -71,12 +71,22 @@ class FeedbackRequest(BaseModel):
 
 class FeedbackOut(BaseModel):
     id: int
+    user_id: int
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
+    message_id: Optional[int] = None
+    message_preview: Optional[str] = None
     feedback_type: str
-    reason: Optional[str]
-    comment: Optional[str]
+    reason: Optional[str] = None
+    comment: Optional[str] = None
     status: str
     is_general: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class FeedbackStatusUpdate(BaseModel):
+    status: str  # baru / ditinjau / diperbaiki
+
 

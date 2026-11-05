@@ -137,6 +137,7 @@ def detect_conflicts(chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
                 conflict = {
                     "topic": topic_name,
+                    "description": f"Konflik hierarki: {higher_citation} ({higher_reg}) mengesampingkan {lower_citation} ({lower_reg}).",
                     "higher_reg": higher_reg,
                     "higher_chunk_id": int(higher_meta.get("chunk_id", 0)),
                     "higher_citation": higher_citation,

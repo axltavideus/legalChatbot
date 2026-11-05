@@ -3,7 +3,8 @@
  */
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Send, Scale, Sparkles, PlusCircle, AlertCircle } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/Button';
@@ -21,12 +22,21 @@ const SUGGESTED_QUESTIONS = [
   'Bagaimana cara memasak rendang daging sapi padang? (Uji Tolakan RAG)',
 ];
 
-export default function TanyaPage() {
+function TanyaContent() {
   const { user } = useAuth();
-  const { messages, isLoading, sendMessage, clearChat } = useChat();
+  const searchParams = useSearchParams();
+  const { messages, isLoading, sendMessage, clearChat, loadConversation } = useChat();
   const [input, setInput] = useState('');
   const [selectedCitation, setSelectedCitation] = useState<Citation | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load conversation if conversation_id query parameter is present
+  useEffect(() => {
+    const convId = searchParams.get('conversation_id');
+    if (convId) {
+      loadConversation(Number(convId));
+    }
+  }, [searchParams, loadConversation]);
 
   // Auto-scroll to bottom as new messages arrive
   useEffect(() => {
@@ -198,5 +208,21 @@ export default function TanyaPage() {
         onClose={() => setSelectedCitation(null)}
       />
     </AppShell>
+  );
+}
+
+export default function TanyaPage() {
+  return (
+    <Suspense
+      fallback={
+        <AppShell>
+          <div className="flex h-full items-center justify-center p-8">
+            <Spinner size="md" label="Memuat Tanya Hukum..." />
+          </div>
+        </AppShell>
+      }
+    >
+      <TanyaContent />
+    </Suspense>
   );
 }

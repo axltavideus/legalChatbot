@@ -22,6 +22,8 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.pengguna, nullable=False)
     institution: Mapped[str | None] = mapped_column(String(255), nullable=True)
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    invite_code: Mapped[str | None] = mapped_column(String(50), unique=True, index=True, nullable=True)
+    referred_by: Mapped[str | None] = mapped_column(String(50), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
