@@ -19,3 +19,4 @@ class UsageLog(Base):
 
     # Relationship
     user: Mapped["User | None"] = relationship("User")
+

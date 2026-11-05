@@ -5,18 +5,23 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageSquare, BookOpen, Bookmark, User, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import {
+  MessageSquare, BookOpen, Bookmark, User, Settings,
+  LogOut, ShieldAlert, CreditCard, LayoutDashboard
+} from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
-  { href: '/tanya',    label: 'Tanya Hukum',          icon: MessageSquare },
-  { href: '/jelajahi', label: 'Jelajahi Peraturan',    icon: BookOpen },
-  { href: '/riwayat',  label: 'Riwayat & Tersimpan',  icon: Bookmark },
-  { href: '/profil',   label: 'Profil',                icon: User },
+  { href: '/tanya',     label: 'Tanya Hukum',          icon: MessageSquare },
+  { href: '/jelajahi',  label: 'Jelajahi Peraturan',    icon: BookOpen },
+  { href: '/riwayat',   label: 'Riwayat & Tersimpan',  icon: Bookmark },
+  { href: '/langganan', label: 'Paket & Langganan',    icon: CreditCard },
+  { href: '/profil',    label: 'Profil',                icon: User },
 ];
 
 const adminItems = [
+  { href: '/admin',          label: 'Dashboard Admin',  icon: LayoutDashboard },
   { href: '/admin/korpus',   label: 'Kelola Korpus',    icon: Settings },
   { href: '/admin/feedback', label: 'Tinjau Feedback',  icon: ShieldAlert },
 ];

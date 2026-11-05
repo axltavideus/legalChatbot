@@ -10,14 +10,50 @@ from app.config import settings
 
 COLLECTION_NAME = "lexindo_pasals"
 
-# Simple deterministic embedding function that works 100% offline without downloading large weights,
-# while supporting real multilingual-e5 embeddings if sentence-transformers is loaded.
+# Hybrid embedding function supporting Gemini API, SentenceTransformer, or offline fallback.
 class LexIndoEmbeddingFunction(chromadb.EmbeddingFunction):
-    """Hybrid embedding function: uses SentenceTransformer if available, or deterministic term embeddings."""
-    def __init__(self, model_name: str = settings.EMBEDDING_MODEL):
+    """Hybrid embedding function:
+    1. If EMBEDDING_PROVIDER == 'gemini' and GEMINI_API_KEY present: uses Google text-embedding-004.
+    2. If EMBEDDING_PROVIDER == 'sentence-transformers' or fallback: uses SentenceTransformer model.
+    3. If none available or offline: uses deterministic 384-dim normalized term/n-gram embeddings.
+    """
+    def __init__(self, provider: str = settings.EMBEDDING_PROVIDER, model_name: str = settings.EMBEDDING_MODEL):
+        self.provider = provider
         self.model_name = model_name
+        self.gemini_model = settings.GEMINI_EMBEDDING_MODEL
         self._st_model = None
         self._st_attempted = False
+        self._gemini_warned = False
+
+    def _embed_gemini(self, docs: chromadb.Documents) -> Optional[chromadb.Embeddings]:
+        if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY.strip() in ("", "your-gemini-api-key-here"):
+            return None
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            embeddings: List[List[float]] = []
+            chunk_size = 50
+            for i in range(0, len(docs), chunk_size):
+                batch = docs[i:i + chunk_size]
+                res = genai.embed_content(
+                    model=self.gemini_model,
+                    content=batch,
+                    task_type="retrieval_document",
+                )
+                if isinstance(res, dict) and "embedding" in res:
+                    emb = res["embedding"]
+                    if emb and isinstance(emb[0], (int, float)):
+                        embeddings.append(emb)
+                    else:
+                        embeddings.extend(emb)
+            if len(embeddings) == len(docs):
+                return embeddings
+        except Exception as e:
+            if not self._gemini_warned:
+                self._gemini_warned = True
+                print(f"[LexIndoEmbedding] Gemini embedding notice: {e}. Falling back to secondary provider.", flush=True)
+            return None
+        return None
 
     def _get_st_model(self):
         if not self._st_attempted:
@@ -30,14 +66,21 @@ class LexIndoEmbeddingFunction(chromadb.EmbeddingFunction):
         return self._st_model
 
     def __call__(self, input: chromadb.Documents) -> chromadb.Embeddings:
-        model = self._get_st_model()
-        if model is not None:
-            # Prefix for e5 models: 'passage: ' or 'query: '
-            prefixed = [f"passage: {doc}" for doc in input]
-            embeddings = model.encode(prefixed, normalize_embeddings=True)
-            return embeddings.tolist()
+        # 1. Try Gemini provider if selected
+        if self.provider == "gemini":
+            gemini_embs = self._embed_gemini(input)
+            if gemini_embs is not None:
+                return gemini_embs
 
-        # Offline deterministic vector fallback: 384-dimensional normalized bag-of-ngrams
+        # 2. Try SentenceTransformer if selected or as secondary
+        if self.provider in ("sentence-transformers", "gemini"):
+            model = self._get_st_model()
+            if model is not None:
+                prefixed = [f"passage: {doc}" for doc in input]
+                embeddings = model.encode(prefixed, normalize_embeddings=True)
+                return embeddings.tolist()
+
+        # 3. Offline deterministic vector fallback: 384-dimensional normalized bag-of-ngrams
         dim = 384
         result: List[List[float]] = []
         for doc in input:
@@ -46,13 +89,11 @@ class LexIndoEmbeddingFunction(chromadb.EmbeddingFunction):
             if not words:
                 words = ["empty"]
             for word in words:
-                # Hash word to dimension index
                 h = int(hashlib.md5(word.encode("utf-8")).hexdigest(), 16)
                 idx = h % dim
                 sign = 1.0 if (h >> 1) & 1 else -1.0
                 vec[idx] += sign
 
-            # Character 3-grams for Indonesian morphological roots (misal: "ketenagakerjaan", "pkwt")
             for i in range(len(doc) - 2):
                 ngram = doc[i:i+3].lower()
                 h = int(hashlib.sha256(ngram.encode("utf-8")).hexdigest(), 16)
@@ -60,7 +101,6 @@ class LexIndoEmbeddingFunction(chromadb.EmbeddingFunction):
                 sign = 1.0 if (h >> 1) & 1 else -1.0
                 vec[idx] += 0.5 * sign
 
-            # L2 normalize
             norm = np.linalg.norm(vec)
             if norm > 0:
                 vec = vec / norm

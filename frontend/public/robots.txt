@@ -1,0 +1,6 @@
+# LexIndo Robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+

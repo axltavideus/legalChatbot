@@ -16,3 +16,4 @@ class PlanInterest(Base):
 
     # Relationship
     user: Mapped["User"] = relationship("User")
+

@@ -202,3 +202,4 @@ def get_dashboard_metrics(
             "is_demo_data": is_plan_demo,
         },
     }
+

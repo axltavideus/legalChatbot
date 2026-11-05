@@ -4,8 +4,11 @@
  */
 'use client';
 
-import { useState } from 'react';
-import { User, Lock, MessageSquarePlus, Trash2, Check, AlertCircle, Building2, Mail, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  User, Lock, MessageSquarePlus, Trash2, Check,
+  AlertCircle, Building2, Mail, ShieldCheck, Share2, Copy, Users
+} from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -43,6 +46,15 @@ export default function ProfilPage() {
 
   // --- Toast notification ---
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // --- Undang Teman (Referral) ---
+  const [inviteInfo, setInviteInfo] = useState<{ invite_code: string; referral_count: number; share_url: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  useEffect(() => {
+    authApi.getInvite().then(setInviteInfo).catch(() => {});
+  }, []);
 
   // 1. Save Profile
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -190,7 +202,97 @@ export default function ProfilPage() {
           </form>
         </section>
 
-        {/* 2. Change Password */}
+        {/* 2. Undang Teman (Referral Program) */}
+        <section className="rounded-2xl border border-navy-100 bg-white p-6 shadow-xs space-y-5">
+          <div className="flex items-center gap-3 border-b border-navy-50 pb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-navy-700">
+              <Share2 className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="font-serif text-lg font-semibold text-navy-900">Undang Teman & Kolega</h2>
+              <p className="text-xs text-gray-500">Bagikan kode referral Anda ke rekan advokat, paralegal, atau HR</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Referral Stats Counter */}
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                Teman Terdaftar
+              </span>
+              <div className="mt-2">
+                <div className="font-serif text-3xl font-bold text-emerald-950">
+                  {inviteInfo?.referral_count ?? 0}
+                </div>
+                <span className="text-[11px] text-emerald-700 mt-0.5 block">
+                  pengguna bergabung lewat kode Anda
+                </span>
+              </div>
+            </div>
+
+            {/* Invite Code Box */}
+            <div className="rounded-xl border border-navy-100 bg-gray-50 p-4 space-y-2">
+              <span className="text-xs font-semibold text-gray-600 block">
+                Kode Referral Pribadi
+              </span>
+              <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg p-2 font-mono font-bold text-navy-900 text-sm">
+                <span>{inviteInfo?.invite_code ?? '...'}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (inviteInfo?.invite_code) {
+                      navigator.clipboard.writeText(inviteInfo.invite_code);
+                      setCopiedCode(true);
+                      setTimeout(() => setCopiedCode(false), 2000);
+                    }
+                  }}
+                  className="text-xs text-navy-600 hover:text-navy-900 flex items-center gap-1"
+                >
+                  {copiedCode ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span className="text-[10px]">{copiedCode ? 'Tersalin' : 'Salin'}</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-500">
+                Masukkan kode ini di formulir pendaftaran akun.
+              </p>
+            </div>
+
+            {/* Share Link Box */}
+            <div className="rounded-xl border border-navy-100 bg-gray-50 p-4 space-y-2">
+              <span className="text-xs font-semibold text-gray-600 block">
+                Tautan Pendaftaran Langsung
+              </span>
+              <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg p-2 text-xs text-navy-900">
+                <span className="truncate max-w-[140px] text-[11px] text-gray-600">
+                  {typeof window !== 'undefined'
+                    ? `${window.location.origin}/register?ref=${inviteInfo?.invite_code ?? ''}`
+                    : `/register?ref=${inviteInfo?.invite_code ?? ''}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (inviteInfo?.invite_code) {
+                      const fullUrl = `${window.location.origin}/register?ref=${inviteInfo.invite_code}`;
+                      navigator.clipboard.writeText(fullUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2000);
+                    }
+                  }}
+                  className="text-xs text-navy-600 hover:text-navy-900 flex items-center gap-1 flex-shrink-0"
+                >
+                  {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span className="text-[10px]">{copiedLink ? 'Tersalin' : 'Salin Link'}</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-500">
+                Pendaftar otomatis tercatat sebagai referral Anda.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. Change Password */}
         <section className="rounded-2xl border border-navy-100 bg-white p-6 shadow-xs">
           <div className="flex items-center gap-3 border-b border-navy-50 pb-4 mb-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-navy-700">

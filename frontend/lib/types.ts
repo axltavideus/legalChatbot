@@ -26,6 +26,7 @@ export interface RegisterPayload {
   role: UserRole;
   institution?: string;
   invite_code?: string;
+  referred_by?: string;
 }
 
 export interface LoginPayload {

@@ -3,7 +3,8 @@
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +13,8 @@ import type { UserRole } from '@/lib/types';
 
 export function RegisterForm() {
   const { register } = useAuth();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get('ref') || '';
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -52,6 +55,7 @@ export function RegisterForm() {
         role: form.role,
         institution: form.institution || undefined,
         invite_code: form.invite_code || undefined,
+        referred_by: refCode || undefined,
       });
     } catch (err: unknown) {
       setGlobalError(err instanceof Error ? err.message : 'Pendaftaran gagal. Silakan coba lagi.');
@@ -137,6 +141,13 @@ export function RegisterForm() {
           onChange={set('invite_code')}
           error={errors.invite_code}
         />
+      )}
+
+      {refCode && (
+        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800 flex items-center justify-between">
+          <span>🎁 Kode Referral Terpasang:</span>
+          <span className="font-mono font-bold">{refCode}</span>
+        </div>
       )}
 
       <Input

@@ -57,3 +57,4 @@ def list_my_interests(
         .all()
     )
     return [{"plan_name": i.plan_name, "created_at": i.created_at} for i in interests]
+

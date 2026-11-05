@@ -13,7 +13,9 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <div className="mb-3 text-5xl">⚖️</div>
           <h1 className="font-serif text-3xl font-bold text-navy-800">LexIndo</h1>
-          <p className="mt-2 text-navy-600">Asisten Riset Hukum Indonesia</p>
+          <p className="mt-2 text-xs sm:text-sm text-navy-600 max-w-sm mx-auto font-serif leading-relaxed">
+            &ldquo;Jawaban hukum dari peraturan yang masih berlaku, dengan pasal yang bisa Anda periksa sendiri.&rdquo;
+          </p>
         </div>
 
         {/* Card */}

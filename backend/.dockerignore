@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+env/
+venv/
+*.sqlite3
+lexindo.db
+chroma_db/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+

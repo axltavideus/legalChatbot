@@ -12,11 +12,27 @@ LexIndo adalah purwarupa sistem asisten riset hukum ketenagakerjaan Indonesia be
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS
 - **Backend:** FastAPI, SQLite, SQLAlchemy ORM
 - **Autentikasi:** JWT dalam httpOnly cookie, hashing password dengan Bcrypt
-- **Vector Store & AI:** ChromaDB, `intfloat/multilingual-e5-base`, Google Gemini API (dengan mode `MOCK_LLM=true`)
+- **Vector Store & AI:** ChromaDB, `EMBEDDING_PROVIDER=gemini` (`models/text-embedding-004`) / `multilingual-e5-base`, Google Gemini API (dengan fallback `MOCK_LLM=true`)
 
 ---
 
-## 🚀 Panduan Menjalankan Aplikasi
+## ⚡ Deployment Cepat dengan Docker Compose
+
+Untuk menjalankan seluruh stack (Backend + Frontend + Auto-seed + Storage Persisten):
+
+```bash
+docker compose up -d --build
+```
+Aplikasi akan langsung aktif di:
+- **Frontend UI:** `http://localhost:3000`
+- **Backend API & Health:** `http://localhost:8000/health`
+- **Swagger Docs:** `http://localhost:8000/docs`
+
+> 📖 Untuk panduan deployment ke **Vercel + Render** atau konfigurasi produksi detail, silakan baca [DEPLOYMENT.md](file:///c:/z/Technoprenuer/legalChatbot/DEPLOYMENT.md).
+
+---
+
+## 🚀 Panduan Menjalankan Aplikasi Secara Manual (Development)
 
 ### 1. Backend (FastAPI)
 
